@@ -1,0 +1,57 @@
+{
+  "name": "pg-memory-rest",
+  "version": "2026.4.7",
+  "description": "PG long-term memory plugin backed by PostgREST. No local database required.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "pg-memory-rest": "./dist/install-cli.js"
+  },
+  "files": [
+    "dist",
+    "docker",
+    "skill",
+    "pg.plugin.json"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "postinstall": "node dist/postinstall.js || true"
+  },
+  "peerDependencies": {
+    "pg": ">=2025.1.1"
+  },
+  "peerDependenciesMeta": {
+    "pg": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.49"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "pg": {
+    "extensions": [
+      "./dist/index.js"
+    ],
+    "install": {
+      "npmSpec": "pg-memory-rest",
+      "defaultChoice": "npm",
+      "minHostVersion": ">=2025.1.1"
+    },
+    "compat": {
+      "pluginApi": ">=2025.1.1"
+    }
+  }
+}

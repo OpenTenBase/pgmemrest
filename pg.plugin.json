@@ -1,0 +1,50 @@
+{
+  "id": "memory-postgrest",
+  "kind": "memory",
+  "uiHints": {
+    "apiKey": {
+      "label": "API Key",
+      "placeholder": "CloudBase HTTP API Key",
+      "help": "CloudBase PostgreSQL RESTful API 的 api-key。"
+    },
+    "envId": {
+      "label": "Env ID",
+      "placeholder": "your-cloudbase-env-id",
+      "help": "CloudBase 环境 ID（envid）。"
+    },
+    "postgrestUrl": {
+      "label": "CloudBase PostgreSQL RESTful API 地址",
+      "placeholder": "https://...",
+      "help": "CloudBase PostgreSQL RESTful API 地址。通常由运行环境提供；如需覆盖可在此填写。",
+      "advanced": true
+    },
+    "userId": {
+      "label": "User ID",
+      "placeholder": "default",
+      "help": "用于隔离不同用户的记忆数据。",
+      "advanced": true
+    },
+    "autoRecall": {
+      "label": "Auto-Recall",
+      "help": "对话前自动注入相关记忆到上下文中。"
+    },
+    "autoCapture": {
+      "label": "Auto-Capture",
+      "help": "对话后自动捕获重要信息存入记忆。",
+      "advanced": true
+    }
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "apiKey": { "type": "string" },
+      "envId": { "type": "string" },
+      "postgrestUrl": { "type": "string" },
+      "userId": { "type": "string" },
+      "autoRecall": { "type": "boolean" },
+      "autoCapture": { "type": "boolean" }
+    },
+    "required": ["apiKey", "envId"]
+  }
+}

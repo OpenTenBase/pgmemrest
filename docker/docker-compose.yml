@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  mem:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pg_mem
+    restart: unless-stopped
+    environment:
+      MEM_PORT: "8080"
+      MEM_API_KEY: "${MEM_API_KEY:-mem-demo-key}"
+      CLOUDBASE_API_KEY: "${CLOUDBASE_API_KEY:-}"
+      CLOUDBASE_ENV_ID: "${CLOUDBASE_ENV_ID:-}"
+      POSTGREST_URL: "${POSTGREST_URL:-}"
+      # Embedding 配置由 pg 运行时通过请求头传入
+      # 以下环境变量作为备用默认值
+      EMBED_BASE_URL: "${EMBED_BASE_URL:-}"
+      EMBED_API_KEY: "${EMBED_API_KEY:-}"
+      EMBED_MODEL: "${EMBED_MODEL:-hunyuan-embedding}"
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/v1/ping/"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
