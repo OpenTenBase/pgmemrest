@@ -1,0 +1,14 @@
+初始化数据库并导入剧本数据：/data/workspace/memserver/memories.db
+mini-mem0 server listening on http://127.0.0.1:8080  (db=/data/workspace/memserver/memories.db)
+[2026-10-19T08:02:34.324311+00:00] "POST /v1/reset HTTP/1.1" 200 -
+[2026-10-19T08:02:34.325799+00:00] "POST /v2/memories HTTP/1.1" 200 -
+[2026-10-19T08:02:34.328810+00:00] "POST /v2/memories/search HTTP/1.1" 200 -
+[2026-10-19T08:02:34.336847+00:00] "POST /v1/memories HTTP/1.1" 200 -
+[2026-10-19T08:02:34.341050+00:00] "POST /v1/memories HTTP/1.1" 200 -
+[2026-10-19T08:02:34.347516+00:00] "POST /v1/memories HTTP/1.1" 200 -
+[2026-10-19T08:02:34.350924+00:00] "POST /v1/memories HTTP/1.1" 200 -
+[2026-10-19T08:02:34.352432+00:00] "POST /v2/memories HTTP/1.1" 200 -
+[2026-10-19T08:02:34.354230+00:00] "GET /v1/history HTTP/1.1" 200 -
+[2026-10-19T08:02:34.355502+00:00] "POST /v2/memories/search HTTP/1.1" 200 -
+[2026-10-19T08:02:34.376764+00:00] "POST /v1/memories HTTP/1.1" 200 -
+[2026-10-19T08:02:34.388202+00:00] "POST /v1/memories HTTP/1.1" 200 -
