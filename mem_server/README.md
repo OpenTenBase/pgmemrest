@@ -74,3 +74,20 @@ Agent「小欧」跨会话服务 alice，依次听到四句话，`demo.py` 输�
 1. 跑 `demo.py`，对照 lab.md Checkpoint 4 思考：幕 3/幕 4 为什么决策不同？"素食"那条该不该在？
 2. 读 `server.py` 中的 `upsert()`（约 60 行），这是整个记忆系统的灵魂。
 3. 按 lab.md 在 OpenTenBase 上用 SQL 重写同样的逻辑（Part 1→3），本实现即验收对照答案。
+
+## 请求体校验与回归测试
+
+POST / DELETE 的非空请求体必须是合法 JSON 对象；非法 JSON、无效 UTF-8、
+数组/标量/null 以及非法 Content-Length 返回 HTTP 400，不进入业务操作。
+无请求体或 `{}` 仍按原有空对象行为处理。尤其是 `/v1/reset`，格式错误的请求
+不能被当作空请求继续执行重置。
+
+在仓库根目录运行：
+
+```sh
+python3 -m unittest discover -s tests -v
+```
+
+测试启动仅绑定 127.0.0.1 的临时 HTTP 服务，使用临时 SQLite 数据库，不调用远端
+embedding，也不修改仓库中的 `memories.db`。可用 `PGMEMREST_TEST_SOURCE`
+环境变量指定另一份 `server.py` 做修复前后对照。

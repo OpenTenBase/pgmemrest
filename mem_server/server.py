@@ -498,20 +498,31 @@ class Handler(BaseHTTPRequestHandler):
         return token == API_KEY
 
     def _body(self):
-        length = int(self.headers.get("Content-Length") or 0)
-        if length <= 0:
+        try:
+            length = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            raise ValueError("invalid Content-Length")
+        if length < 0:
+            raise ValueError("invalid Content-Length")
+        if length == 0:
             return {}
         raw = self.rfile.read(length)
         try:
-            return json.loads(raw.decode("utf-8"))
-        except Exception:
-            return {}
+            body = json.loads(raw.decode("utf-8"))
+        except (ValueError, UnicodeError):
+            raise ValueError("request body must be valid JSON")
+        if not isinstance(body, dict):
+            raise ValueError("request body must be a JSON object")
+        return body
 
     def _dispatch(self, method):
         if not self._auth():
             return self._json(401, {"error": "invalid api key"})
         path = self.path.split("?")[0].rstrip("/") or "/"
-        body = self._body() if method in ("POST", "DELETE") else {}
+        try:
+            body = self._body() if method in ("POST", "DELETE") else {}
+        except ValueError as exc:
+            return self._json(400, {"error": str(exc)})
 
         try:
             # GET
