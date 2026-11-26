@@ -1,0 +1,10 @@
+2026-11-26, Asia/Shanghai
+Upstream: https://github.com/apache/age
+Commit: 1bb3aff56470499a1c036ae36eee4dfeeb9566b4
+Preparation: python3 scripts/prepare.py --source <verified-upstream> --output <new-directory>
+Result: Verified 123 upstream build files (Git blob hashes from the pinned upstream tree).
+Result: git apply --check passed; git apply passed.
+Result: 125 resulting source files match the source tree compiled in the real OpenTenBase container byte for byte.
+Build: clean PGXS compilation, GCC 9.4.0, aarch64; no warnings/errors in evidence/build.txt.
+Initial install: CREATE EXTENSION age on CN succeeded after installing matching library files on both node hosts.
+Final install: sql/install.sql completed BEGIN ... COMMIT in a new database.

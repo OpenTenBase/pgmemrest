@@ -1,0 +1,764 @@
+[
+  {
+    "sql": "SELECT node_name FROM pgxc_node WHERE node_type='D' ORDER BY node_name;",
+    "returncode": 0,
+    "stdout": "dn0001\ndn0002\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT version();",
+    "returncode": 0,
+    "stdout": "PostgreSQL 10.0 @ OpenTenBase_v5.0 OpenTenBase V5.21 2026-10-11 14:21:51 on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0, 64-bit\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.create_graph('age_test_6b939c04ac_a', 'dn0001');",
+    "returncode": 0,
+    "stdout": "dn0001\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.create_graph('age_test_6b939c04ac_b', 'dn0002');",
+    "returncode": 0,
+    "stdout": "dn0002\n",
+    "stderr": ""
+  },
+  {
+    "sql": "EXECUTE DIRECT ON (\"dn0001\") 'SELECT count(*) FROM ag_catalog.ag_graph WHERE name=''age_test_6b939c04ac_a''';",
+    "returncode": 0,
+    "stdout": "1\n",
+    "stderr": ""
+  },
+  {
+    "sql": "EXECUTE DIRECT ON (\"dn0002\") 'SELECT count(*) FROM ag_catalog.ag_graph WHERE name=''age_test_6b939c04ac_a''';",
+    "returncode": 0,
+    "stdout": "0\n",
+    "stderr": ""
+  },
+  {
+    "sql": "EXECUTE DIRECT ON (\"dn0001\") 'SELECT count(*) FROM ag_catalog.ag_graph WHERE name=''age_test_6b939c04ac_b''';",
+    "returncode": 0,
+    "stdout": "0\n",
+    "stderr": ""
+  },
+  {
+    "sql": "EXECUTE DIRECT ON (\"dn0002\") 'SELECT count(*) FROM ag_catalog.ag_graph WHERE name=''age_test_6b939c04ac_b''';",
+    "returncode": 0,
+    "stdout": "1\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (:Memory {key:\"isolated\", value:\"tea\"})', 1);",
+    "returncode": 0,
+    "stdout": "[]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'MATCH (n:Memory {key:\"isolated\"}) RETURN n.value', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"\\\"tea\\\"\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_b', 'MATCH (n) RETURN count(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"0\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (:Chain {k:\"a\"})-[:NEXT]->(:Chain {k:\"b\"})-[:NEXT]->(:Chain {k:\"c\"})', 1);",
+    "returncode": 0,
+    "stdout": "[]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'MATCH (:Chain {k:\"a\"})-[:NEXT*1..2]->(n) RETURN n.k ORDER BY n.k', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"\\\"b\\\"\"}, {\"c0\": \"\\\"c\\\"\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'MERGE (n:Editable {k:\"same\"}) SET n.v=\"first\" RETURN n.v', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"\\\"first\\\"\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'MERGE (n:Editable {k:\"same\"}) SET n.v=\"updated\" RETURN n.v', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"\\\"updated\\\"\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'MATCH (n:Editable) RETURN count(n), max(n.v)', 2);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"1\", \"c1\": \"\\\"updated\\\"\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'MATCH (n:Editable) DELETE n', 1);",
+    "returncode": 0,
+    "stdout": "[]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'MATCH (n:Editable) RETURN count(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"0\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'MATCH p=(:Chain)-[:NEXT]->(:Chain) RETURN p LIMIT 1', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"[{\\\"id\\\": 1125899906842625, \\\"label\\\": \\\"Chain\\\", \\\"properties\\\": {\\\"k\\\": \\\"a\\\"}}::vertex, {\\\"id\\\": 1407374883553282, \\\"label\\\": \\\"NEXT\\\", \\\"end_id\\\": 1125899906842626, \\\"start_id\\\": 1125899906842625, \\\"properties\\\": {}}::edge, {\\\"id\\\": 1125899906842626, \\\"label\\\": \\\"Chain\\\", \\\"properties\\\": {\\\"k\\\": \\\"b\\\"}}::vertex]::path\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "BEGIN;\nSELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (:Committed {v:1})', 1);\nSELECT age_dist.cypher('age_test_6b939c04ac_b', 'CREATE (:Committed {v:2})', 1);\nCOMMIT;",
+    "returncode": 0,
+    "stdout": "[]\n[]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'MATCH (n:Committed) RETURN n.v', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"1\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_b', 'MATCH (n:Committed) RETURN n.v', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"2\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "BEGIN;\nSELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (:Aborted {v:1})', 1);\nSELECT age_dist.cypher('age_test_6b939c04ac_b', 'CREATE (:Aborted {v:2})', 1);\nROLLBACK;",
+    "returncode": 0,
+    "stdout": "[]\n[]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'MATCH (n:Aborted) RETURN count(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"0\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_b', 'MATCH (n:Aborted) RETURN count(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"0\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "BEGIN;\nSELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (:ErrorAbort {v:1})', 1);\nSELECT age_dist.cypher('age_test_6b939c04ac_b', 'CREATE (:ErrorAbort {v:2})', 1);\nSELECT age_dist.cypher('age_test_6b939c04ac_a', 'THIS IS NOT CYPHER', 1);\nCOMMIT;",
+    "returncode": 3,
+    "stdout": "[]\n[]\n",
+    "stderr": "ERROR:  (42601) syntax error at or near \"THIS\"\nCONTEXT:  SQL statement \"EXECUTE DIRECT ON (dn0001) 'SELECT ag_catalog._age_otb_worker(''cypher'',''age_test_6b939c04ac_a'',''THIS IS NOT CYPHER'',1)'\"\nPL/pgSQL function cypher(text,text,integer) line 12 at RETURN\nLOCATION:  pgxc_node_report_error, execRemote.c:9995\n"
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'MATCH (n:ErrorAbort) RETURN count(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"0\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_b', 'MATCH (n:ErrorAbort) RETURN count(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"0\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "BEGIN; SELECT age_dist.create_graph('age_test_6b939c04ac_rollback', 'dn0002'); ROLLBACK;",
+    "returncode": 0,
+    "stdout": "dn0002\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT count(*) FROM age_dist.graph_routes WHERE graph_name='age_test_6b939c04ac_rollback';",
+    "returncode": 0,
+    "stdout": "0\n",
+    "stderr": ""
+  },
+  {
+    "sql": "EXECUTE DIRECT ON (\"dn0002\") 'SELECT count(*) FROM ag_catalog.ag_graph WHERE name=''age_test_6b939c04ac_rollback''';",
+    "returncode": 0,
+    "stdout": "0\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.create_graph('age_test_6b939c04ac_a', 'dn0002');",
+    "returncode": 3,
+    "stdout": "",
+    "stderr": "ERROR:  (23505) duplicate key value violates unique constraint \"graph_routes_pkey\"\nDETAIL:  Key (graph_name)=(age_test_6b939c04ac_a) already exists.\nCONTEXT:  SQL statement \"INSERT INTO age_dist.graph_routes VALUES (graph_name, target, current_timestamp)\"\nPL/pgSQL function create_graph(text,name) line 32 at SQL statement\nLOCATION:  pgxc_node_report_error, execRemote.c:10006\n"
+  },
+  {
+    "sql": "SELECT data_node FROM age_dist.graph_routes WHERE graph_name='age_test_6b939c04ac_a';",
+    "returncode": 0,
+    "stdout": "dn0001\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.create_graph('age_test_6b939c04ac_auto');",
+    "returncode": 0,
+    "stdout": "dn0002\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT data_node FROM age_dist.graph_routes WHERE graph_name='age_test_6b939c04ac_auto';",
+    "returncode": 0,
+    "stdout": "dn0002\n",
+    "stderr": ""
+  },
+  {
+    "sql": "EXECUTE DIRECT ON (\"dn0002\") 'SELECT count(*) FROM ag_catalog.ag_graph WHERE name=''age_test_6b939c04ac_auto''';",
+    "returncode": 0,
+    "stdout": "1\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.create_graph('age_test_6b939c04ac_drop', 'dn0001');",
+    "returncode": 0,
+    "stdout": "dn0001\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_drop', 'CREATE (:ToDrop {v:1})', 1);",
+    "returncode": 0,
+    "stdout": "[]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.drop_graph('age_test_6b939c04ac_drop');",
+    "returncode": 0,
+    "stdout": "\n",
+    "stderr": ""
+  },
+  {
+    "sql": "EXECUTE DIRECT ON (\"dn0001\") 'SELECT count(*) FROM pg_namespace WHERE nspname=''age_test_6b939c04ac_drop''';",
+    "returncode": 0,
+    "stdout": "0\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.create_graph('age_test_6b939c04ac_drop', 'dn0001');",
+    "returncode": 0,
+    "stdout": "dn0001\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_drop', 'CREATE (:ToDrop {v:1})', 1);",
+    "returncode": 0,
+    "stdout": "[]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.drop_graph('age_test_6b939c04ac_drop');",
+    "returncode": 0,
+    "stdout": "\n",
+    "stderr": ""
+  },
+  {
+    "sql": "EXECUTE DIRECT ON (\"dn0001\") 'SELECT count(*) FROM pg_namespace WHERE nspname=''age_test_6b939c04ac_drop''';",
+    "returncode": 0,
+    "stdout": "0\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Quoted {value:\"用户说：it''s tea; $age_query_0$ $$ ''\\\"; DROP SCHEMA age_dist CASCADE; --\"}) RETURN n.value', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"\\\"用户说：it's tea; $age_query_0$ $$ '\\\\\\\"; DROP SCHEMA age_dist CASCADE; --\\\"\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT count(*) FROM pg_namespace WHERE nspname='age_dist';",
+    "returncode": 0,
+    "stdout": "1\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.create_graph('x;DROP SCHEMA age_dist CASCADE');",
+    "returncode": 3,
+    "stdout": "",
+    "stderr": "ERROR:  (22023) invalid or reserved graph name\nCONTEXT:  PL/pgSQL function create_graph(text,name) line 13 at RAISE\nLOCATION:  exec_stmt_raise, pl_exec.c:4044\n"
+  },
+  {
+    "sql": "SELECT age_dist.create_graph('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');",
+    "returncode": 3,
+    "stdout": "",
+    "stderr": "ERROR:  (22023) invalid or reserved graph name\nCONTEXT:  PL/pgSQL function create_graph(text,name) line 13 at RAISE\nLOCATION:  exec_stmt_raise, pl_exec.c:4044\n"
+  },
+  {
+    "sql": "SELECT age_dist.create_graph('pg_bad');",
+    "returncode": 3,
+    "stdout": "",
+    "stderr": "ERROR:  (22023) invalid or reserved graph name\nCONTEXT:  PL/pgSQL function create_graph(text,name) line 13 at RAISE\nLOCATION:  exec_stmt_raise, pl_exec.c:4044\n"
+  },
+  {
+    "sql": "SELECT age_dist.create_graph('age_dist');",
+    "returncode": 3,
+    "stdout": "",
+    "stderr": "ERROR:  (22023) invalid or reserved graph name\nCONTEXT:  PL/pgSQL function create_graph(text,name) line 13 at RAISE\nLOCATION:  exec_stmt_raise, pl_exec.c:4044\n"
+  },
+  {
+    "sql": "SELECT age_dist.create_graph(NULL);",
+    "returncode": 3,
+    "stdout": "",
+    "stderr": "ERROR:  (22004) graph name cannot be NULL\nCONTEXT:  PL/pgSQL function create_graph(text,name) line 8 at RAISE\nLOCATION:  exec_stmt_raise, pl_exec.c:4044\n"
+  },
+  {
+    "sql": "SELECT age_dist.create_graph('age_test_6b939c04ac_bad', 'missing_node');",
+    "returncode": 3,
+    "stdout": "",
+    "stderr": "ERROR:  (22023) unknown data node: missing_node\nCONTEXT:  PL/pgSQL function create_graph(text,name) line 26 at RAISE\nLOCATION:  exec_stmt_raise, pl_exec.c:4044\n"
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'RETURN 1', 0);",
+    "returncode": 3,
+    "stdout": "",
+    "stderr": "ERROR:  (22023) result column count must be between 1 and 32\nCONTEXT:  SQL statement \"EXECUTE DIRECT ON (dn0001) 'SELECT ag_catalog._age_otb_worker(''cypher'',''age_test_6b939c04ac_a'',''RETURN 1'',0)'\"\nPL/pgSQL function cypher(text,text,integer) line 12 at RETURN\nLOCATION:  pgxc_node_report_error, execRemote.c:9995\n"
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'RETURN 1', 33);",
+    "returncode": 3,
+    "stdout": "",
+    "stderr": "ERROR:  (22023) result column count must be between 1 and 32\nCONTEXT:  SQL statement \"EXECUTE DIRECT ON (dn0001) 'SELECT ag_catalog._age_otb_worker(''cypher'',''age_test_6b939c04ac_a'',''RETURN 1'',33)'\"\nPL/pgSQL function cypher(text,text,integer) line 12 at RETURN\nLOCATION:  pgxc_node_report_error, execRemote.c:9995\n"
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_missing', 'RETURN 1', 1);",
+    "returncode": 3,
+    "stdout": "",
+    "stderr": "ERROR:  (3F000) graph is not registered: age_test_6b939c04ac_missing\nCONTEXT:  PL/pgSQL function cypher(text,text,integer) line 10 at RAISE\nLOCATION:  exec_stmt_raise, pl_exec.c:4044\n"
+  },
+  {
+    "sql": "BEGIN READ ONLY;\nSELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (:Forbidden)', 1);\nCOMMIT;",
+    "returncode": 3,
+    "stdout": "",
+    "stderr": "ERROR:  (25006) cannot execute AGE graph operation in a read-only transaction\nCONTEXT:  PL/pgSQL function cypher(text,text,integer) line 12 at RETURN\nLOCATION:  PreventCommandIfReadOnly, utility.c:426\n"
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'MATCH (n:Forbidden) RETURN count(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"0\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SET ROLE pg_monitor;\nSELECT age_dist.cypher('age_test_6b939c04ac_a', 'RETURN 1', 1);",
+    "returncode": 3,
+    "stdout": "",
+    "stderr": "ERROR:  (42501) permission denied for schema age_dist\nLINE 1: SELECT age_dist.cypher('age_test_6b939c04ac_a', 'RETURN 1', ...\n               ^\nLOCATION:  aclcheck_error, aclchk.c:3747\n"
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent0 {i:0}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3096224743817217\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent0 {i:1}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3096224743817218\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent0 {i:2}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3096224743817219\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent0 {i:3}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3096224743817220\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent0 {i:4}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3096224743817221\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent0 {i:6}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3096224743817222\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent0 {i:5}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3096224743817223\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent0 {i:7}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3096224743817224\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent0 {i:9}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3096224743817225\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent0 {i:8}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3096224743817226\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent0 {i:10}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3096224743817227\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent0 {i:11}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3096224743817228\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'MATCH (n:Concurrent0) RETURN count(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"12\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent1 {i:0}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3377699720527873\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent1 {i:1}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3377699720527874\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent1 {i:3}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3377699720527875\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent1 {i:2}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3377699720527876\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent1 {i:4}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3377699720527877\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent1 {i:5}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3377699720527878\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent1 {i:6}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3377699720527879\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent1 {i:7}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3377699720527880\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent1 {i:8}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3377699720527881\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent1 {i:9}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3377699720527882\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent1 {i:10}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3377699720527883\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent1 {i:11}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3377699720527884\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'MATCH (n:Concurrent1) RETURN count(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"12\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent2 {i:3}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3659174697238530\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent2 {i:1}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3659174697238529\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent2 {i:0}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3659174697238531\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent2 {i:2}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3659174697238532\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent2 {i:6}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3659174697238533\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent2 {i:5}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3659174697238534\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent2 {i:7}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3659174697238535\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent2 {i:4}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3659174697238536\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent2 {i:8}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3659174697238537\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent2 {i:9}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3659174697238538\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent2 {i:10}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3659174697238539\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'CREATE (n:Concurrent2 {i:11}) RETURN id(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"3659174697238540\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.cypher('age_test_6b939c04ac_a', 'MATCH (n:Concurrent2) RETURN count(n)', 1);",
+    "returncode": 0,
+    "stdout": "[{\"c0\": \"12\"}]\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.create_graph('age_test_6b939c04ac_race0', 'dn0001');",
+    "returncode": 0,
+    "stdout": "dn0001\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.create_graph('age_test_6b939c04ac_race0', 'dn0002');",
+    "returncode": 3,
+    "stdout": "",
+    "stderr": "ERROR:  (23505) duplicate key value violates unique constraint \"graph_routes_pkey\"\nDETAIL:  Key (graph_name)=(age_test_6b939c04ac_race0) already exists.\nCONTEXT:  SQL statement \"INSERT INTO age_dist.graph_routes VALUES (graph_name, target, current_timestamp)\"\nPL/pgSQL function create_graph(text,name) line 32 at SQL statement\nLOCATION:  pgxc_node_report_error, execRemote.c:10006\n"
+  },
+  {
+    "sql": "EXECUTE DIRECT ON (\"dn0001\") 'SELECT count(*) FROM ag_catalog.ag_graph WHERE name=''age_test_6b939c04ac_race0''';",
+    "returncode": 0,
+    "stdout": "1\n",
+    "stderr": ""
+  },
+  {
+    "sql": "EXECUTE DIRECT ON (\"dn0002\") 'SELECT count(*) FROM ag_catalog.ag_graph WHERE name=''age_test_6b939c04ac_race0''';",
+    "returncode": 0,
+    "stdout": "0\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.create_graph('age_test_6b939c04ac_race1', 'dn0002');",
+    "returncode": 0,
+    "stdout": "dn0002\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.create_graph('age_test_6b939c04ac_race1', 'dn0001');",
+    "returncode": 3,
+    "stdout": "",
+    "stderr": "ERROR:  (23505) duplicate key value violates unique constraint \"graph_routes_pkey\"\nDETAIL:  Key (graph_name)=(age_test_6b939c04ac_race1) already exists.\nCONTEXT:  SQL statement \"INSERT INTO age_dist.graph_routes VALUES (graph_name, target, current_timestamp)\"\nPL/pgSQL function create_graph(text,name) line 32 at SQL statement\nLOCATION:  pgxc_node_report_error, execRemote.c:10006\n"
+  },
+  {
+    "sql": "EXECUTE DIRECT ON (\"dn0001\") 'SELECT count(*) FROM ag_catalog.ag_graph WHERE name=''age_test_6b939c04ac_race1''';",
+    "returncode": 0,
+    "stdout": "0\n",
+    "stderr": ""
+  },
+  {
+    "sql": "EXECUTE DIRECT ON (\"dn0002\") 'SELECT count(*) FROM ag_catalog.ag_graph WHERE name=''age_test_6b939c04ac_race1''';",
+    "returncode": 0,
+    "stdout": "1\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.create_graph('age_test_6b939c04ac_race2', 'dn0002');",
+    "returncode": 0,
+    "stdout": "dn0002\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.create_graph('age_test_6b939c04ac_race2', 'dn0001');",
+    "returncode": 3,
+    "stdout": "",
+    "stderr": "ERROR:  (23505) duplicate key value violates unique constraint \"graph_routes_pkey\"\nDETAIL:  Key (graph_name)=(age_test_6b939c04ac_race2) already exists.\nCONTEXT:  SQL statement \"INSERT INTO age_dist.graph_routes VALUES (graph_name, target, current_timestamp)\"\nPL/pgSQL function create_graph(text,name) line 32 at SQL statement\nLOCATION:  pgxc_node_report_error, execRemote.c:10006\n"
+  },
+  {
+    "sql": "EXECUTE DIRECT ON (\"dn0001\") 'SELECT count(*) FROM ag_catalog.ag_graph WHERE name=''age_test_6b939c04ac_race2''';",
+    "returncode": 0,
+    "stdout": "0\n",
+    "stderr": ""
+  },
+  {
+    "sql": "EXECUTE DIRECT ON (\"dn0002\") 'SELECT count(*) FROM ag_catalog.ag_graph WHERE name=''age_test_6b939c04ac_race2''';",
+    "returncode": 0,
+    "stdout": "1\n",
+    "stderr": ""
+  },
+  {
+    "sql": "LOAD 'age'; SELECT ag_catalog.create_graph('unexpected_cn_graph');",
+    "returncode": 3,
+    "stdout": "",
+    "stderr": "ERROR:  (0A000) use age_dist.create_graph() to assign a data node\nLOCATION:  create_graph_internal, graph_commands.c:96\n"
+  },
+  {
+    "sql": "LOAD 'age'; SELECT * FROM ag_catalog.cypher('ignored', $$RETURN 1$$) AS (v ag_catalog.agtype);",
+    "returncode": 3,
+    "stdout": "",
+    "stderr": "ERROR:  (0A000) use age_dist.cypher() for graph-sharded queries\nLOCATION:  convert_cypher_to_subquery, cypher_analyze.c:358\n"
+  },
+  {
+    "sql": "EXECUTE DIRECT ON (\"dn0001\") 'SELECT count(*) FROM age_dist.graph_routes WHERE graph_name IN (''age_test_6b939c04ac_a'',''age_test_6b939c04ac_b'')';",
+    "returncode": 0,
+    "stdout": "2\n",
+    "stderr": ""
+  },
+  {
+    "sql": "EXECUTE DIRECT ON (\"dn0002\") 'SELECT count(*) FROM age_dist.graph_routes WHERE graph_name IN (''age_test_6b939c04ac_a'',''age_test_6b939c04ac_b'')';",
+    "returncode": 0,
+    "stdout": "2\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT count(*) FROM age_dist.graph_routes WHERE graph_name='age_test_6b939c04ac_a';",
+    "returncode": 0,
+    "stdout": "1\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.drop_graph('age_test_6b939c04ac_a');",
+    "returncode": 0,
+    "stdout": "\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT count(*) FROM age_dist.graph_routes WHERE graph_name='age_test_6b939c04ac_auto';",
+    "returncode": 0,
+    "stdout": "1\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.drop_graph('age_test_6b939c04ac_auto');",
+    "returncode": 0,
+    "stdout": "\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT count(*) FROM age_dist.graph_routes WHERE graph_name='age_test_6b939c04ac_b';",
+    "returncode": 0,
+    "stdout": "1\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.drop_graph('age_test_6b939c04ac_b');",
+    "returncode": 0,
+    "stdout": "\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT count(*) FROM age_dist.graph_routes WHERE graph_name='age_test_6b939c04ac_drop';",
+    "returncode": 0,
+    "stdout": "0\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT count(*) FROM age_dist.graph_routes WHERE graph_name='age_test_6b939c04ac_race0';",
+    "returncode": 0,
+    "stdout": "1\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.drop_graph('age_test_6b939c04ac_race0');",
+    "returncode": 0,
+    "stdout": "\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT count(*) FROM age_dist.graph_routes WHERE graph_name='age_test_6b939c04ac_race1';",
+    "returncode": 0,
+    "stdout": "1\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.drop_graph('age_test_6b939c04ac_race1');",
+    "returncode": 0,
+    "stdout": "\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT count(*) FROM age_dist.graph_routes WHERE graph_name='age_test_6b939c04ac_race2';",
+    "returncode": 0,
+    "stdout": "1\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT age_dist.drop_graph('age_test_6b939c04ac_race2');",
+    "returncode": 0,
+    "stdout": "\n",
+    "stderr": ""
+  },
+  {
+    "sql": "SELECT count(*) FROM age_dist.graph_routes WHERE graph_name='age_test_6b939c04ac_rollback';",
+    "returncode": 0,
+    "stdout": "0\n",
+    "stderr": ""
+  }
+]

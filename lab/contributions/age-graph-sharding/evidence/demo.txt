@@ -1,0 +1,59 @@
+Pager usage is off.
+                                                                               version                                                                                
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ PostgreSQL 10.0 @ OpenTenBase_v5.0 OpenTenBase V5.21 2026-10-11 14:21:51 on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0, 64-bit
+(1 row)
+
+BEGIN
+ create_graph 
+--------------
+ dn0001
+(1 row)
+
+ create_graph 
+--------------
+ dn0002
+(1 row)
+
+      graph_name       | data_node 
+-----------------------+-----------
+ age_course_demo_alice | dn0001
+ age_course_demo_bob   | dn0002
+(2 rows)
+
+ cypher 
+--------
+ []
+(1 row)
+
+         cypher         
+------------------------
+ [{"c0": "\"coffee\""}]
+(1 row)
+
+                                       cypher                                       
+------------------------------------------------------------------------------------
+ [{"c0": "\"goal\"", "c1": "\"health\""}, {"c0": "\"habit\"", "c1": "\"morning\""}]
+(1 row)
+
+    cypher     
+---------------
+ [{"c0": "1"}]
+(1 row)
+
+         name          
+-----------------------
+ age_course_demo_alice
+(1 row)
+
+        name         
+---------------------
+ age_course_demo_bob
+(1 row)
+
+ROLLBACK
+ remaining_demo_routes 
+-----------------------
+                     0
+(1 row)
+
