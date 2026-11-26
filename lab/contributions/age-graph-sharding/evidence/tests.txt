@@ -1,0 +1,27 @@
+Actual server: PostgreSQL 10.0 @ OpenTenBase_v5.0 OpenTenBase V5.21 2026-10-11 14:21:51 on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0, 64-bit
+Data nodes: dn0001, dn0002
+test_01_physical_placement (__main__.ClusterTests.test_01_physical_placement) ... ok
+test_02_native_create_match_and_isolation (__main__.ClusterTests.test_02_native_create_match_and_isolation) ... ok
+test_03_variable_length_traversal (__main__.ClusterTests.test_03_variable_length_traversal) ... ok
+test_04_set_merge_delete (__main__.ClusterTests.test_04_set_merge_delete) ... ok
+test_05_native_vertex_and_path_encoding (__main__.ClusterTests.test_05_native_vertex_and_path_encoding) ... ok
+test_06_cross_node_commit (__main__.ClusterTests.test_06_cross_node_commit) ... ok
+test_07_cross_node_rollback (__main__.ClusterTests.test_07_cross_node_rollback) ... ok
+test_08_error_rolls_back_both_nodes (__main__.ClusterTests.test_08_error_rolls_back_both_nodes) ... ok
+test_09_graph_create_rollback (__main__.ClusterTests.test_09_graph_create_rollback) ... ok
+test_10_duplicate_create_keeps_original_mapping (__main__.ClusterTests.test_10_duplicate_create_keeps_original_mapping) ... ok
+test_11_automatic_placement_is_persisted (__main__.ClusterTests.test_11_automatic_placement_is_persisted) ... ok
+test_12_drop_and_recreate (__main__.ClusterTests.test_12_drop_and_recreate) ... ok
+test_13_quotes_unicode_and_delimiter_injection (__main__.ClusterTests.test_13_quotes_unicode_and_delimiter_injection) ... ok
+test_14_invalid_arguments (__main__.ClusterTests.test_14_invalid_arguments) ... ok
+test_15_read_only_transaction_rejected (__main__.ClusterTests.test_15_read_only_transaction_rejected) ... ok
+test_16_non_admin_cannot_use_router (__main__.ClusterTests.test_16_non_admin_cannot_use_router) ... ok
+test_17_concurrent_writes_allocate_unique_ids (__main__.ClusterTests.test_17_concurrent_writes_allocate_unique_ids) ... ok
+test_18_concurrent_duplicate_graph_creation (__main__.ClusterTests.test_18_concurrent_duplicate_graph_creation) ... ok
+test_19_native_cn_calls_rejected (__main__.ClusterTests.test_19_native_cn_calls_rejected) ... ok
+test_20_metadata_replicated (__main__.ClusterTests.test_20_metadata_replicated) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 17.961s
+
+OK
