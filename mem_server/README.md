@@ -1,31 +1,32 @@
-# mini-mem0 server — lab.md 的本地参考实现
+# mini-mem0 server — 本地参考实现
 
-这是 [lab.md](../lab.md) 的**可运行参考答案**：一个纯 Python 标准库（零依赖）、SQLite 存储的迷你 Mem0 服务。学生先在本地把整条链路跑通、理解每个决策，再按 lab.md 在 OpenTenBase 上用 SQL 亲手实现一遍。
+这是 pgmemrest 本地参考实现：一个纯 Python 标准库（零依赖）、SQLite 存储的迷你 Mem0 服务。开发者可在本地快速把整条链路跑通、理解每个决策机制，再对照迁移至 OpenTenBase / PostgreSQL（`pgvector`）环境。
 
 ## 快速开始
 
 ```bash
-cd /data/workspace/memserver
+cd mem_server
 python3 server.py            # 默认监听 http://127.0.0.1:8080
 # 另开终端
-python3 demo.py              # 重放 lab.md 的四幕剧本，观察 ADD/UPDATE/DELETE/NOOP
+python3 demo.py              # 重放四幕剧本，观察 ADD/UPDATE/DELETE/NOOP 与跨用户隔离
 ```
 
-首次启动自动建库并导入 alice 的 2 条既有记忆（lab.md Checkpoint 2）。
+首次启动自动建库并导入 alice 的 2 条既有记忆。
 
 ## API
 
-| 方法 | 路径 | 说明 | 对应 lab.md |
+| 方法 | 路径 | 说明 | 对应机制 |
 |---|---|---|---|
+| GET | `/healthz` / `/readyz` | 免认证存活探针 / 存储就绪探针（未就绪返 `503`） | 运维探针 |
 | GET | `/v1/ping` | 健康检查 | — |
 | POST | `/v1/reset` | 重置并导入剧本初始数据 | Part 1 |
-| POST | `/v1/memories` | 写入记忆（内部走四操作决策管线） | **Part 3** |
+| POST | `/v1/memories` | 写入记忆（内部走四操作决策管线，`messages` 须为非空数组） | **Part 3** |
 | POST | `/v2/memories` | 列出某用户记忆 | Part 1 |
 | POST | `/v2/memories/search` | 语义检索（相似度 × 类型权重 × 时间新近度） | **Part 2** |
-| GET | `/v1/memories/{id}` | 获取单条 | — |
-| DELETE | `/v1/memories/{id}` | 删除单条（校验归属） | — |
+| GET | `/v1/memories/{id}?user_id=...` | 获取单条（支持 query / `X-User-Id` 归属校验，越权返回 403） | 挑战 B |
+| DELETE | `/v1/memories/{id}?user_id=...` | 删除单条（支持 query / JSON body / `X-User-Id` 归属校验） | 挑战 B |
 | DELETE | `/v1/memories` | 删除某用户全部 | — |
-| GET | `/v1/history` | 操作审计留痕 | 挑战 A |
+| GET | `/v1/history?user_id=...&limit=...` | 操作审计留痕（支持按用户过滤与分页限制） | 挑战 A |
 
 ```bash
 # 手动试用
@@ -66,8 +67,13 @@ Agent「小欧」跨会话服务 alice，依次听到四句话，`demo.py` 输�
 |---|---|---|
 | `MEM_PORT` / `MEM_HOST` | 8080 / 127.0.0.1 | 监听地址 |
 | `MEM_DB_PATH` | `./memories.db` | SQLite 文件 |
-| `MEM_API_KEY` | 空（不认证） | 设置后需 `Authorization: Token <key>` |
-| `EMBED_BASE_URL` / `EMBED_API_KEY` / `EMBED_MODEL` | 空 | 配置后切换为远端 OpenAI 兼容 embedding |
+| `MEM_API_KEY` | 空（不认证） | 单用户/受控网关共享密钥，设置后需 `Authorization: Token <key>`（常量时间校验） |
+| `MEM_TENANT_TOKENS` | 空 | 多租户客户端直连映射（如 `'{"tok-alice":"alice"}'`），将 Token 强绑定至唯一 `user_id` |
+| `MEM_ADMIN_KEY` | 空 | 独立管理员密钥，专门保护 `/v1/reset` 与不带 `user_id` 的全局 `/v1/history` |
+| `MEM_REQUIRE_USER_ID` | 空（关闭） | 设为 `1`/`true` 时强制所有读写删与审计接口（`/v1/memories*`、`/v2/memories*`、`/v1/history`）必须携带非空 `user_id` |
+| `MEM_ENABLE_RESET` | `1`（开启） | 设为 `0`/`false` 时禁用 `POST /v1/reset`（返回 `403`） |
+| `MEM_MAX_LIMIT` | `10000` | 查询与列表接口的单次 `limit` 最大允许值（兼容 `pg pgmem stats`） |
+| `EMBED_BASE_URL` / `EMBED_API_KEY` / `EMBED_MODEL` / `EMBED_PROVIDERS_JSON` | 空 | 服务端受信远端 OpenAI 兼容 embedding 配置（锁外计算并复用同模型已存向量，严禁向未授权外部 URL 泄露密钥） |
 
 ## 建议的学生路径
 
